@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-	--dark-color-a: #667aff;
-	--dark-color-b: #7386ff;
+	--dark-color-a: #A91D3A;
+	--dark-color-b: #C73659;
 	--light-color: #e6e9ff;
 	--success-color: #5cb85c;
 	--error-color: #d9534f;
@@ -15,10 +15,9 @@
 }
 
 body {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Montserrat', sans-serif;
 	font-size: 16px;
 	background: var(--light-color);
-	margin: 20px;
 }
 
 ul {
@@ -41,17 +40,14 @@ a {
 /* Chat Page */
 
 .chat-container {
-	max-width: 1100px;
 	background: #fff;
-	margin: 30px auto;
 	overflow: hidden;
+	
 }
 
 .chat-header {
 	background: var(--dark-color-a);
 	color: #fff;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
 	padding: 15px;
 	display: flex;
 	align-items: center;
@@ -60,7 +56,8 @@ a {
 
 .chat-main {
 	display: grid;
-	grid-template-columns: 1fr 3fr;
+	grid-template-columns: 1fr 4fr;
+	min-height: 84vh;
 }
 
 .chat-sidebar {
@@ -101,7 +98,7 @@ a {
 .chat-messages .message .meta {
 	font-size: 15px;
 	font-weight: bold;
-	color: var(--dark-color-b);
+	color: var(--dark-color-a);
 	opacity: 0.7;
 	margin-bottom: 7px;
 }

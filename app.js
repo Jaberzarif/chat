@@ -3,7 +3,8 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
-const formatMessage =  require('./utils/messages');
+const formatMessage = require('./utils/messages');
+const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users');
 
 const app = express();
 
@@ -14,27 +15,63 @@ const io = socketio(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const botName = 'ChatCord Bot';
+const botName = 'LiveChat Bot';
 
 // Run when client connect
-io.on('connection', socket => {
-    
-    // Welcome message
-    socket.emit('message', formatMessage(botName, "Welcome to Chat!"));
-    
-    // Broadcast when a user connects
-    socket.broadcast.emit(formatMessage(botName, "Welcome to Chat!"));
-    
-    // Runs when client disconnects
-    socket.on('disconnect', () => {
-        io.emit(formatMessage(botName, "A user has left the chat"));
-    })
+io.on("connection", (socket) => {
+    //console.log(io.of("/").adapter);
 
-    // Listen to message
-    socket.on('chatMessage', (msg) => {
-        io.emit('message', formatMessage('USER',msg));
-    })
+    socket.on("joinRoom", ({ username, room }) => {
+
+        const user = userJoin(socket.id, username, room);
+
+        socket.join(user.room);
+
+        // Welcome current user
+        socket.emit("message", formatMessage(botName, "Welcome to LiveChat!"));
+
+        // Broadcast when a user connects
+        socket.broadcast
+            .to(user.room)
+            .emit(
+                "message",
+                formatMessage(botName, `${user.username} has joined the chat`)
+            );
+
+        // Send users and room info
+        io.to(user.room).emit("roomUsers", {
+            room: user.room,
+            users: getRoomUsers(user.room),
+        });
+    });
+
+    // Listen for chatMessage
+    socket.on("chatMessage", (msg) => {
+        const user = getCurrentUser(socket.id);
+        io.to(user.room).emit("message", formatMessage(user.username, msg));
+    });
+
+    // Runs when client disconnects
+    socket.on("disconnect", () => {
+        const user = userLeave(socket.id);
+
+        if (user) {
+            io.to(user.room).emit(
+                "message",
+                formatMessage(botName, `${user.username} has left the chat`)
+            );
+
+            // Send users and room info
+            io.to(user.room).emit("roomUsers", {
+                room: user.room,
+                users: getRoomUsers(user.room),
+            });
+        }
+
+
+    });
 });
+
 
 const PORT = 3000 || process.env.PORT;
 
